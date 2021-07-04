@@ -4,8 +4,11 @@ import 'package:flutter_trivia_clean_arch/core/error/failures.dart';
 import 'package:flutter_trivia_clean_arch/core/platform/network_info.dart';
 import 'package:flutter_trivia_clean_arch/features/number_trivia/data/datasources/number_trivia_local_data_source.dart';
 import 'package:flutter_trivia_clean_arch/features/number_trivia/data/datasources/number_trivia_remote_data_source.dart';
+import 'package:flutter_trivia_clean_arch/features/number_trivia/data/models/number_trivia_model.dart';
 import 'package:flutter_trivia_clean_arch/features/number_trivia/domain/entities/number_trivia.dart';
 import 'package:flutter_trivia_clean_arch/features/number_trivia/domain/repositories/number_trivia_repository.dart';
+
+typedef Future<NumberTriviaModel> _ConcreteOrRandomChooser();
 
 class NumberTriviaRepositoryImpl implements NumberTriviaRepository {
   final NumberTriviaRemoteDataSource remoteDataSource;
@@ -22,10 +25,22 @@ class NumberTriviaRepositoryImpl implements NumberTriviaRepository {
   Future<Either<Failure, NumberTrivia>> getConcreteNumberTrivia(
     int number,
   ) async {
+    return await _getTrivia(
+        () => remoteDataSource.getConcreteNumberTrivia(number));
+  }
+
+  @override
+  Future<Either<Failure, NumberTrivia>> getRandomNumberTrivia() {
+    // TODO: implement getRandomNumberTrivia
+    throw UnimplementedError();
+  }
+
+  Future<Either<Failure, NumberTrivia>> _getTrivia(
+    _ConcreteOrRandomChooser getConcreteOrRandom,
+  ) async {
     if (await networkInfo.isConnected) {
       try {
-        final remoteTrivia =
-            await remoteDataSource.getConcreteNumberTrivia(number);
+        final remoteTrivia = await getConcreteOrRandom();
         await localDataSource.cacheNumberTrivia(remoteTrivia);
         return Right(remoteTrivia);
       } on ServerException {
@@ -39,11 +54,5 @@ class NumberTriviaRepositoryImpl implements NumberTriviaRepository {
         return Left(CacheFailure());
       }
     }
-  }
-
-  @override
-  Future<Either<Failure, NumberTrivia>> getRandomNumberTrivia() {
-    // TODO: implement getRandomNumberTrivia
-    throw UnimplementedError();
   }
 }
