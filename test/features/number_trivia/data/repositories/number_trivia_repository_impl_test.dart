@@ -63,7 +63,7 @@ void main() {
 
     setUp(() {
       when(() => mockLocalDataSource.cacheNumberTrivia(tNumberTriviaModel))
-          .thenAnswer((_) async => {});
+          .thenAnswer((_) async => true);
       when(() => mockRemoteDataSource.getConcreteNumberTrivia(tNumber))
           .thenAnswer((_) async => tNumberTriviaModel);
     });
@@ -142,7 +142,7 @@ void main() {
 
     setUp(() {
       when(() => mockLocalDataSource.cacheNumberTrivia(tNumberTriviaModel))
-          .thenAnswer((_) async => {});
+          .thenAnswer((_) async => true);
       when(() => mockRemoteDataSource.getRandomNumberTrivia())
           .thenAnswer((_) async => tNumberTriviaModel);
     });
