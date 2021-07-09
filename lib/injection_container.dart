@@ -1,5 +1,6 @@
 import 'package:flutter_trivia_clean_arch/core/network/network_info.dart';
 import 'package:flutter_trivia_clean_arch/core/util/input_converter.dart';
+import 'package:flutter_trivia_clean_arch/features/number_trivia/data/datasources/number_trivia_local_data_source.dart';
 import 'package:flutter_trivia_clean_arch/features/number_trivia/data/datasources/number_trivia_remote_data_source.dart';
 import 'package:flutter_trivia_clean_arch/features/number_trivia/data/repositories/number_trivia_repository_impl.dart';
 import 'package:flutter_trivia_clean_arch/features/number_trivia/domain/repositories/number_trivia_repository.dart';
@@ -11,11 +12,9 @@ import 'package:http/http.dart' as http;
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'features/number_trivia/data/datasources/number_trivia_local_data_source.dart';
-
 final sl = GetIt.instance;
 
-void init() {
+Future<void> init() async {
   /* Features - Number Trivia */
   // Bloc
   sl.registerFactory(
@@ -52,8 +51,9 @@ void init() {
   );
 
   /* External */
-  sl.registerLazySingletonAsync<SharedPreferences>(
-      () => SharedPreferences.getInstance());
-  sl.registerLazySingleton(() => http.Client);
-  sl.registerLazySingleton(() => InternetConnectionChecker());
+  final sharedPreferences = await SharedPreferences.getInstance();
+  sl.registerLazySingleton<SharedPreferences>(() => sharedPreferences);
+  sl.registerLazySingleton<http.Client>(() => http.Client());
+  sl.registerLazySingleton<InternetConnectionChecker>(
+      () => InternetConnectionChecker());
 }
